@@ -9,15 +9,16 @@ import { BookingProvider } from './contexts/BookingContext';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
-import BookServicePage from './pages/BookServicePage';
-// Removed PaymentPage import as payment is removed
-import BookingSuccessPage from './pages/BookingSuccessPage';
-import ProfilePage from './pages/ProfilePage';
 import BookingsPage from './pages/BookingsPage';
+import ProfilePage from './pages/ProfilePage';
+import BookServicePage from './pages/BookServicePage';
+import PaymentPage from './pages/PaymentPage';
+import BookingSuccessPage from './pages/BookingSuccessPage';
 import AboutUsPage from './pages/AboutUsPage';
 import ContactUsPage from './pages/ContactUsPage';
+import AdminBookingsPage from './pages/AdminBookingsPage';
 
-function App() {
+const App: React.FC = () => {
   return (
     <AuthProvider>
       <BookingProvider>
@@ -26,19 +27,20 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route path="/book" element={<BookServicePage />} />
-            {/* Removed payment route */}
-            <Route path="/booking-success" element={<BookingSuccessPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/bookings" element={<BookingsPage />} />
-            <Route path="/about" element={<AboutUsPage />} />
-            <Route path="/contact" element={<ContactUsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/book-service" element={<BookServicePage />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/booking-success" element={<BookingSuccessPage />} />
+            <Route path="/about-us" element={<AboutUsPage />} />
+            <Route path="/contact-us" element={<ContactUsPage />} />
+            <Route path="/admin" element={<AdminBookingsPage />} />
           </Routes>
           <ToastContainer position="top-right" autoClose={3000} />
         </Router>
       </BookingProvider>
     </AuthProvider>
   );
-}
+};
 
 export default App;

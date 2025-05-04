@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
+// Default admin credentials (hashed password)
+const adminEmail = 'admin@e6carspa.com';
+const adminPasswordHash = bcrypt.hashSync('Admin@123', 10); // hashed default password
+
 // Register endpoint
 app.post('/api/register', async (req, res) => {
   try {
@@ -66,7 +70,7 @@ app.post('/api/register', async (req, res) => {
 
     // Create JWT token
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, role: 'customer' },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -79,7 +83,8 @@ app.post('/api/register', async (req, res) => {
         email: user.email,
         phone: user.phone,
         address: user.address,
-        cars: user.cars
+        cars: user.cars,
+        role: 'customer'
       }
     });
   } catch (error) {
@@ -87,26 +92,48 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// Login endpoint
+// Login endpoint with role parameter
 app.post('/api/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
-    // Find user
+    if (role === 'admin') {
+      // Check admin credentials
+      if (email === adminEmail && bcrypt.compareSync(password, adminPasswordHash)) {
+        // Create JWT token for admin
+        const token = jwt.sign(
+          { userId: 'admin', role: 'admin' },
+          process.env.JWT_SECRET,
+          { expiresIn: '24h' }
+        );
+
+        return res.json({
+          token,
+          user: {
+            id: 'admin',
+            fullName: 'Administrator',
+            email: adminEmail,
+            role: 'admin'
+          }
+        });
+      } else {
+        return res.status(400).json({ message: 'Invalid admin credentials' });
+      }
+    }
+
+    // Customer login flow
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Verify password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Create JWT token
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, role: 'customer' },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -119,7 +146,8 @@ app.post('/api/login', async (req, res) => {
         email: user.email,
         phone: user.phone,
         address: user.address,
-        cars: user.cars
+        cars: user.cars,
+        role: 'customer'
       }
     });
   } catch (error) {
@@ -151,7 +179,7 @@ const bookingSchema = new mongoose.Schema({
 
 const Booking = mongoose.model('Booking', bookingSchema);
 
-// Middleware to verify JWT token and set req.userId
+// Middleware to verify JWT token and set req.userId and req.role
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -160,12 +188,16 @@ const authenticateToken = (req, res, next) => {
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     req.userId = user.userId;
+    req.role = user.role;
     next();
   });
 };
 
 // Create booking endpoint
 app.post('/api/bookings', authenticateToken, async (req, res) => {
+  if (req.role !== 'customer') {
+    return res.status(403).json({ message: 'Only customers can create bookings' });
+  }
   try {
     const { carId, services, date, timeSlot, mechanicId, totalAmount, gstAmount, finalAmount } = req.body;
 
@@ -192,8 +224,24 @@ app.post('/api/bookings', authenticateToken, async (req, res) => {
 
 // Get bookings for user
 app.get('/api/bookings', authenticateToken, async (req, res) => {
+  if (req.role !== 'customer') {
+    return res.status(403).json({ message: 'Only customers can view bookings' });
+  }
   try {
-    const bookings = await Booking.find({ userId: req.userId }).sort({ createdAt: -1 });
+    const bookings = await Booking.find({ userId: req.userId }).sort({ date: 1, 'timeSlot.startTime': 1 });
+    res.json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Admin: Get all bookings sorted by date and time
+app.get('/api/admin/bookings', authenticateToken, async (req, res) => {
+  if (req.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+  try {
+    const bookings = await Booking.find().sort({ date: 1, 'timeSlot.startTime': 1 });
     res.json(bookings);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
