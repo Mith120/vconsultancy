@@ -21,6 +21,7 @@ interface Booking {
   totalAmount: number;
   gstAmount: number;
   finalAmount: number;
+  status: string;
   createdAt: string;
 }
 
@@ -28,35 +29,82 @@ const AdminBookingsPage: React.FC = () => {
   const { token } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState('');
+  const [processingId, setProcessingId] = useState<string | null>(null);
+
+  const fetchBookings = async () => {
+    if (!token) return;
+    try {
+      const response = await fetch('http://localhost:5000/api/admin/bookings', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch bookings');
+      }
+      const data: Booking[] = await response.json();
+      setBookings(data);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Error fetching bookings');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      if (!token) return;
-      try {
-        const response = await fetch('http://localhost:5000/api/admin/bookings', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch bookings');
-        }
-        const data: Booking[] = await response.json();
-        setBookings(data);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError('Error fetching bookings');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBookings();
   }, [token]);
+
+  const confirmBooking = async (id: string) => {
+    setProcessingId(id);
+    try {
+      const response = await fetch(`http://localhost:5000/api/admin/bookings/${id}/confirm`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to confirm booking');
+      }
+      setBookings(prev =>
+        prev.map(b => (b._id === id ? { ...b, status: 'confirmed' } : b))
+      );
+    } catch {
+      // Optionally handle error
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const completeBooking = async (id: string) => {
+    setProcessingId(id);
+    try {
+      const response = await fetch(`http://localhost:5000/api/admin/bookings/${id}/complete`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to mark booking as completed');
+      }
+      setBookings(prev =>
+        prev.map(b => (b._id === id ? { ...b, status: 'completed' } : b))
+      );
+    } catch {
+      // Optionally handle error
+    } finally {
+      setProcessingId(null);
+    }
+  };
 
   if (loading) return <div className="text-center py-10 text-lg font-semibold">Loading bookings...</div>;
   if (error) return <div className="text-center py-10 text-red-600 font-semibold">Error: {error}</div>;
@@ -77,28 +125,52 @@ const AdminBookingsPage: React.FC = () => {
                 <th className="border px-6 py-3 text-left font-semibold">Date</th>
                 <th className="border px-6 py-3 text-left font-semibold">Time Slot</th>
                 <th className="border px-6 py-3 text-left font-semibold">Services</th>
+                <th className="border px-6 py-3 text-left font-semibold">Status</th>
                 <th className="border px-6 py-3 text-right font-semibold">Total Amount</th>
                 <th className="border px-6 py-3 text-right font-semibold">GST Amount</th>
                 <th className="border px-6 py-3 text-right font-semibold">Final Amount</th>
+                <th className="border px-6 py-3 text-center font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {bookings.map((booking, index) => (
                 <tr
                   key={booking._id}
-                  className={`border-t border-gray-300 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-blue-100 transition-colors duration-200`}
+                  className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
                 >
                   <td className="border px-6 py-3">{booking._id}</td>
                   <td className="border px-6 py-3">{booking.userId}</td>
                   <td className="border px-6 py-3">{booking.carId}</td>
                   <td className="border px-6 py-3">{new Date(booking.date).toLocaleDateString()}</td>
                   <td className="border px-6 py-3">{booking.timeSlot.startTime} - {booking.timeSlot.endTime}</td>
-                  <td className="border px-6 py-3">
-                    {booking.services.map((service: Service) => service.name).join(', ')}
-                  </td>
+                  <td className="border px-6 py-3">{booking.services.map(service => service.name).join(', ')}</td>
+                  <td className="border px-6 py-3 capitalize">{booking.status}</td>
                   <td className="border px-6 py-3 text-right">₹{booking.totalAmount.toLocaleString()}</td>
                   <td className="border px-6 py-3 text-right">₹{booking.gstAmount.toLocaleString()}</td>
                   <td className="border px-6 py-3 text-right">₹{booking.finalAmount.toLocaleString()}</td>
+                  <td className="border px-6 py-3 text-center">
+                    {booking.status === 'pending' && (
+                      <button
+                        onClick={() => confirmBooking(booking._id)}
+                        disabled={processingId === booking._id}
+                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                      >
+                        {processingId === booking._id ? 'Processing...' : 'Confirm'}
+                      </button>
+                    )}
+                    {booking.status === 'confirmed' && (
+                      <button
+                        onClick={() => completeBooking(booking._id)}
+                        disabled={processingId === booking._id}
+                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                      >
+                        {processingId === booking._id ? 'Processing...' : 'Mark as Completed'}
+                      </button>
+                    )}
+                    {booking.status === 'completed' && (
+                      <span className="text-green-700 font-semibold">Completed</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

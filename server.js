@@ -159,7 +159,7 @@ const PORT = process.env.PORT || 5000;
 
 const bookingSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  carId: { type: String, required: true },
+  carId: { type: mongoose.Schema.Types.ObjectId, ref: 'Car', required: true },
   services: [{
     id: String,
     name: String,
@@ -174,6 +174,7 @@ const bookingSchema = new mongoose.Schema({
   totalAmount: Number,
   gstAmount: Number,
   finalAmount: Number,
+  status: { type: String, enum: ['pending', 'confirmed', 'completed'], default: 'pending' },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -243,6 +244,44 @@ app.get('/api/admin/bookings', authenticateToken, async (req, res) => {
   try {
     const bookings = await Booking.find().sort({ date: 1, 'timeSlot.startTime': 1 });
     res.json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Admin: Confirm a booking
+app.patch('/api/admin/bookings/:id/confirm', authenticateToken, async (req, res) => {
+  if (req.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+  try {
+    const bookingId = req.params.id;
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    booking.status = 'confirmed';
+    await booking.save();
+    res.json({ message: 'Booking confirmed successfully', booking });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Admin: Mark booking as completed
+app.patch('/api/admin/bookings/:id/complete', authenticateToken, async (req, res) => {
+  if (req.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+  try {
+    const bookingId = req.params.id;
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    booking.status = 'completed';
+    await booking.save();
+    res.json({ message: 'Booking marked as completed', booking });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

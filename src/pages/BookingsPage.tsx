@@ -11,6 +11,7 @@ interface Booking {
   date: string;
   services: Service[];
   totalAmount: number;
+  status: string;
 }
 
 const BookingsPage: React.FC = () => {
@@ -74,7 +75,7 @@ const BookingsPage: React.FC = () => {
             <div key={booking._id} className="bg-white shadow rounded-lg p-4">
               <p><strong>Booking ID:</strong> {booking._id}</p>
               <p><strong>Date:</strong> {new Date(booking.date).toLocaleDateString()}</p>
-              <p><strong>Status:</strong> Confirmed</p>
+              <p><strong>Status:</strong> {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</p>
               <div>
                 <strong>Services:</strong>
                 <ul className="list-disc list-inside">

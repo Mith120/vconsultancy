@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -30,11 +30,13 @@ const App: React.FC = () => {
             <Route path="/bookings" element={<BookingsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/book-service" element={<BookServicePage />} />
+            <Route path="/book" element={<Navigate to="/book-service" replace />} />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/booking-success" element={<BookingSuccessPage />} />
             <Route path="/about-us" element={<AboutUsPage />} />
             <Route path="/contact-us" element={<ContactUsPage />} />
             <Route path="/admin" element={<AdminBookingsPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <ToastContainer position="top-right" autoClose={3000} />
         </Router>
