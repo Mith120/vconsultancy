@@ -14,6 +14,8 @@ import BookServicePage from './pages/BookServicePage';
 import BookingSuccessPage from './pages/BookingSuccessPage';
 import ProfilePage from './pages/ProfilePage';
 import BookingsPage from './pages/BookingsPage';
+import AboutUsPage from './pages/AboutUsPage';
+import ContactUsPage from './pages/ContactUsPage';
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
             <Route path="/booking-success" element={<BookingSuccessPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/bookings" element={<BookingsPage />} />
+            <Route path="/about" element={<AboutUsPage />} />
+            <Route path="/contact" element={<ContactUsPage />} />
           </Routes>
           <ToastContainer position="top-right" autoClose={3000} />
         </Router>

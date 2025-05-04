@@ -19,31 +19,6 @@ const HomePage: React.FC = () => {
     });
   }, []);
   
-  // Testimonials
-  const testimonials = [
-    {
-      id: 1,
-      name: 'Rahul Sharma',
-      rating: 5,
-      comment: 'The best car service I\'ve ever experienced. Professional mechanics and amazing results!',
-      car: 'BMW X5'
-    },
-    {
-      id: 2,
-      name: 'Priya Patel',
-      rating: 4,
-      comment: 'Very impressed with the interior cleaning service. My car looks brand new again.',
-      car: 'Honda City'
-    },
-    {
-      id: 3,
-      name: 'Vikram Singh',
-      rating: 5,
-      comment: 'Excellent engine service. The car runs so much smoother now. Highly recommended!',
-      car: 'Hyundai Creta'
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -189,57 +164,6 @@ const HomePage: React.FC = () => {
                 Thousands of happy customers trust us with their vehicles
               </p>
             </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Testimonials Section */}
-      <div className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900">Customer Testimonials</h2>
-            <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
-              Here's what our clients have to say about our services
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial) => (
-              <div 
-                key={testimonial.id}
-                className="bg-gray-50 p-6 rounded-lg shadow-sm"
-              >
-                <div className="flex items-center mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i}
-                      className={`h-5 w-5 ${
-                        i < testimonial.rating 
-                          ? 'text-yellow-400 fill-yellow-400' 
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <p className="text-gray-600 italic mb-4">"{testimonial.comment}"</p>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h4 className="font-medium text-gray-900">{testimonial.name}</h4>
-                    <p className="text-sm text-gray-500">{testimonial.car}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-12 text-center">
-            <Link 
-              to={isAuthenticated ? "/book" : "/login"}
-              className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors"
-            >
-              Join Our Happy Customers
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </Link>
           </div>
         </div>
       </div>
