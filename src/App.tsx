@@ -12,6 +12,8 @@ import SignupPage from './pages/SignupPage';
 import BookServicePage from './pages/BookServicePage';
 // Removed PaymentPage import as payment is removed
 import BookingSuccessPage from './pages/BookingSuccessPage';
+import ProfilePage from './pages/ProfilePage';
+import BookingsPage from './pages/BookingsPage';
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
             <Route path="/book" element={<BookServicePage />} />
             {/* Removed payment route */}
             <Route path="/booking-success" element={<BookingSuccessPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/bookings" element={<BookingsPage />} />
           </Routes>
           <ToastContainer position="top-right" autoClose={3000} />
         </Router>
