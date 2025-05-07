@@ -69,17 +69,16 @@ const BookServicePage: React.FC = () => {
     }
   };
   
-  // Check if the current step is complete
   const isStepComplete = () => {
     switch (currentStep) {
-      case 1: // Car selection
+      case 1:
         return selectedCar !== null;
-      case 2: // Service selection
+      case 2:
         return selectedServices.length > 0;
-      case 3: // Date and time selection
+      case 3:
         return selectedDate !== null && selectedTimeSlot !== null;
-      case 4: // Mechanic selection
-        return true; // Optional step
+      case 4:
+        return true;
       default:
         return false;
     }
@@ -89,8 +88,8 @@ const BookServicePage: React.FC = () => {
     switch (currentStep) {
       case 1:
         return (
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Select Your Car</h2>
+          <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-lg border border-gray-300">
+            <h2 className="text-2xl font-bold text-blue-700 mb-6">Select Your Car</h2>
             <CarSelector 
               selectedCar={selectedCar} 
               onSelectCar={setSelectedCar} 
@@ -99,8 +98,8 @@ const BookServicePage: React.FC = () => {
         );
       case 2:
         return (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Select Services</h2>
+          <div className="p-6 bg-white rounded-lg shadow-lg border border-gray-300">
+            <h2 className="text-2xl font-bold text-green-700 mb-6">Select Services</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map(service => (
                 <ServiceCard
@@ -116,11 +115,11 @@ const BookServicePage: React.FC = () => {
         );
       case 3:
         return (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Select Date & Time</h2>
+          <div className="p-6 bg-white rounded-lg shadow-lg border border-gray-300">
+            <h2 className="text-2xl font-bold text-purple-700 mb-6">Select Date & Time</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-lg font-medium text-gray-800 mb-4">Select Date</h3>
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h3 className="text-lg font-medium text-indigo-700 mb-4">Select Date</h3>
                 <DatePicker
                   selected={selectedDate}
                   onChange={(date: Date) => setSelectedDate(date)}
@@ -144,8 +143,8 @@ const BookServicePage: React.FC = () => {
         );
       case 4:
         return (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Select Mechanic (Optional)</h2>
+          <div className="p-6 bg-white rounded-lg shadow-lg border border-gray-300">
+            <h2 className="text-2xl font-bold text-red-700 mb-6">Select Mechanic (Optional)</h2>
             {availableMechanics.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {availableMechanics.map(mechanic => (
@@ -166,11 +165,11 @@ const BookServicePage: React.FC = () => {
         );
       case 5:
         return (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Booking Summary</h2>
+          <div className="p-6 bg-white rounded-lg shadow-lg border border-gray-300">
+            <h2 className="text-2xl font-bold text-teal-700 mb-6">Booking Summary</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
-                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-200">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Car Details</h3>
                   {selectedCar && (
                     <div>
@@ -180,7 +179,7 @@ const BookServicePage: React.FC = () => {
                   )}
                 </div>
                 
-                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-200">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Selected Services</h3>
                   {selectedServices.length > 0 ? (
                     <ul className="space-y-3">
@@ -196,7 +195,7 @@ const BookServicePage: React.FC = () => {
                   )}
                 </div>
                 
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Appointment Details</h3>
                   {selectedDate && (
                     <div>
